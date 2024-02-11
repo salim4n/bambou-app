@@ -5,7 +5,6 @@ export const metadata: Metadata = {
   title: "Bambou App",
   description: "Envoi de sms massif via fichier Excel",
   creator: "salim4n",
-
 };
 
 const date = new Date();
@@ -29,13 +28,13 @@ export default function RootLayout({
       </head>
       <body className="bg-slate-400">
         <header className="fixed top-0 w-full z-50 bg-slate-600">
-          <h1 className="text-center m-3 p-3">Bambou App</h1>
+          <h1 className="text-center m-3 p-3 text-white">Bambou App</h1>
         </header>
         <main className="container mx-auto mt-20 mb-20 px-4">
           {children}
         </main>
         <footer className="fixed bottom-0 w-full z-50 bg-slate-600">
-          <p className="text-center m-3 p-3">&copy;{date.getFullYear()} - Bambou Application SMS automation</p>
+          <p className="text-center m-3 p-3 text-white">&copy;{date.getFullYear()} - Bambou Application SMS automation</p>
         </footer>
       </body>
     </html>
