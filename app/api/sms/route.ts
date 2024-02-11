@@ -8,11 +8,13 @@ export async function POST(req:any) {
   try {
     const client = require("twilio")(accountSid, authToken);
     console.log(req);
-    const {message} = await req.json();
+    const {message,tel} = await req.json();
+    console.log("message",message)
+    console.log("tel",tel)
     const response = await client.messages.create({
       body: message,
       from: '+12408216255',
-      to: '+33749628470'
+      to: tel
     });
     return  NextResponse.json({message: response}, {status: 200});
   } catch (error:any) {

@@ -1,16 +1,22 @@
 "use client";
-import { Button, Spin, Table,message, Upload } from "antd";
+import { Button, Spin, Table,message, Upload, Select,Modal } from "antd";
 import { ColumnGroupType, ColumnType } from "antd/es/table";
 import { useState } from "react";
 import * as XLSX from "xlsx";
 import type {  UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import TextArea from "antd/es/input/TextArea";
+
+
 
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
 export default  function Home() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>([]);
+  const [selectedColumn, setSelectedColumn] = useState<string>("");
+  const [smsMessage, setSmsMessage] = useState<string>("hello world!");
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
 
   const props: UploadProps = {
     name: 'file',
@@ -87,29 +93,44 @@ export default  function Home() {
       return columns;
     };
 
-    const sendSms = async (data:any) => {
+    const sendSms = async (column:string,smsMessage:string) => {
+      console.log("sendSms");
+      console.log(column);
           try {
+            const selectedData = data.map((item: { [x: string]: any; }) => item[column]);
+            console.log(selectedData);
             setLoading(true);
-            const response = await fetch("/api/sms", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                message: "Bonjour, ceci est un test de message SMS depuis Bambou App. Merci de ne pas répondre à ce message."
-              }),
+            selectedData.forEach(async (phoneNumber: string) => {
+              //verifier que le numero commence par 06 ou 07 ou +336 ou +337
+              if (!phoneNumber.match(/^(06|07|\+336|\+337)/)) {
+                message.error("Le numéro de téléphone doit commencer par 06, 07, +336 ou +337");
+              }
+              if(phoneNumber.match(/^(06|07|\+336|\+337)/)){
+                const response = await fetch("/api/sms", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    message: smsMessage,
+                    tel: phoneNumber.match(/^(06|07)/) ? `+33${phoneNumber.slice(1)}` : phoneNumber,
+                  }),
+                });
+                console.log("Response:", response);
+                if (response.ok) {
+                  message.success("SMS envoyé avec succès");
+                } else {
+                  message.error("Erreur lors de l'envoi du SMS");
+                }
+              }
+              
             });
-            console.log("Response:", response);
-            if (response.ok) {
-              message.success("SMS envoyé avec succès");
-            } else {
-              message.error("Erreur lors de l'envoi du SMS");
-            }
           } catch (error) {
-            console.error("Error sending SMS:", error);
+            console.error("Erreur lors de l'envoi du SMS", error);
+            message.error("Erreur lors de l'envoi du SMS");
           } finally {
             setLoading(false);
-          }
+          };
     }
     
   return (
@@ -120,9 +141,15 @@ export default  function Home() {
       </div>
       {data.length > 0 && (
         <div className="text-center m-3 p-3">
-          <Button className=" bg-blue-400 text-white" onClick={() => sendSms(data)}>
+          <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn,smsMessage)} disabled={selectedColumn === ""}>
             Envoyer SMS
           </Button>
+          <Select
+            className="m-3"
+            placeholder="Sélectionnez une colonne"
+            options={Object.keys(data[0]).map((key) => ({ label: key, value: key }))}
+            onChange={(value) => setSelectedColumn(value)}
+            />
         </div>
       )}
       <Table
@@ -135,6 +162,29 @@ export default  function Home() {
       <Button className="m-3"  danger onClick={() => setData([])} disabled={data.length === 0}>
         Vider le tableau
       </Button>
+      <Button className="m-3" onClick={() => setModalOpen(true)}>
+        Génerer un message
+      </Button>
+      <Modal
+        title="Génerer un message"
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        footer={[
+          <Button key="submit" type="default" onClick={() =>{
+            message.success("Message généré avec succès");
+            setModalOpen(false);
+          }}>
+            Valider
+          </Button>
+        ]}
+      >
+        <TextArea 
+        rows={4} 
+        value={smsMessage} 
+        onChange={(e) => 
+        setSmsMessage(e.target.value)} 
+        />
+      </Modal>
       {loading && <Spin size="large" fullscreen={true} />}
     </>
   );
