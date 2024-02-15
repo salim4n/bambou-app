@@ -1,22 +1,24 @@
 "use client";
-import { Button, Spin, Table,message, Upload, Select,Modal } from "antd";
+import { Button, Spin, Table,message, Upload, Select,Modal, Input } from "antd";
 import { ColumnGroupType, ColumnType } from "antd/es/table";
-import { useState } from "react";
+import {  useState } from "react";
 import * as XLSX from "xlsx";
 import type {  UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import TextArea from "antd/es/input/TextArea";
 
-
-
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
-export default  function Home() {
+const authMessage = "e96e9da5-6a18-43ee-8421-f0545f177727";
+
+export default function Home() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>([]);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
   const [smsMessage, setSmsMessage] = useState<string>("hello world!");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [storedPassword, setStoredPassword] = useState<string>("");
+  const [canEnter, setCanEnter] = useState<boolean>(false);
 
   const props: UploadProps = {
     name: 'file',
@@ -128,61 +130,95 @@ export default  function Home() {
             setLoading(false);
           };
     }
-    
-  return (
-      <><div className="text-center m-3 p-3">
-      <Upload {...props}>
-        <Button icon={<UploadOutlined />}>Telecharger Fichier Excel</Button>
-      </Upload>
+
+    const storePasswordInLocalStorage = (password:string) => {
+      localStorage.setItem("password",password);
+      if(password === authMessage){
+        message.success("Mot de passe enregistré avec succès");
+        setCanEnter(true);
+      } else{
+        message.error("Mot de passe incorrect");
+      }
+    }
+
+    if(!canEnter){
+      if(localStorage && localStorage.getItem("password") === authMessage){
+        setCanEnter(true);
+      }
+     return ( 
+              <div className="text-center m-3 p-3">
+                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Entrez le mot de passe
+                </label>
+                <Input className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                type="password"
+                value={storedPassword}
+                onChange={(e) => setStoredPassword(e.target.value)}
+                />
+                <Button onClick={() => storePasswordInLocalStorage(storedPassword)}>
+                  Valider
+                </Button>
+                </div>)
+    }
+
+
+
+  return  ( 
+     <>
+     <div className="text-center m-3 p-3">
+    <Upload {...props}>
+      <Button icon={<UploadOutlined />}>Telecharger Fichier Excel</Button>
+    </Upload>
+    </div>
+    {data.length > 0 && (
+      <div className="text-center m-3 p-3">
+        <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn,smsMessage)} disabled={selectedColumn === ""}>
+          Envoyer SMS
+        </Button>
+        <Select
+          className="m-3"
+          placeholder="Sélectionnez une colonne"
+          options={Object.keys(data[0]).map((key) => ({ label: key, value: key }))}
+          onChange={(value) => setSelectedColumn(value)}
+          />
       </div>
-      {data.length > 0 && (
-        <div className="text-center m-3 p-3">
-          <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn,smsMessage)} disabled={selectedColumn === ""}>
-            Envoyer SMS
-          </Button>
-          <Select
-            className="m-3"
-            placeholder="Sélectionnez une colonne"
-            options={Object.keys(data[0]).map((key) => ({ label: key, value: key }))}
-            onChange={(value) => setSelectedColumn(value)}
-            />
-        </div>
-      )}
-      <Table
-        className="m-3 p-3 divide-indigo-950"
-        columns={generateColumns(data)}
-        dataSource={data}
-        size="small"
-        scroll={{ x: 1327,y:300}} 
+    )}
+    <Table
+      className="m-3 p-3 divide-indigo-950"
+      columns={generateColumns(data)}
+      dataSource={data}
+      size="small"
+      scroll={{ x: 1327,y:300}} 
+    />
+    <Button className="m-3"  danger onClick={() => setData([])} disabled={data.length === 0}>
+      Vider le tableau
+    </Button>
+    <Button className="m-3" onClick={() => setModalOpen(true)}>
+      Génerer un message
+    </Button>
+    <Modal
+      title="Génerer un message"
+      open={modalOpen}
+      onCancel={() => setModalOpen(false)}
+      footer={[
+        <Button key="submit" type="default" onClick={() =>{
+          message.success("Message généré avec succès");
+          setModalOpen(false);
+        }}>
+          Valider
+        </Button>
+      ]}
+    >
+      <TextArea 
+      rows={4} 
+      value={smsMessage} 
+      onChange={(e) => 
+      setSmsMessage(e.target.value)} 
       />
-      <Button className="m-3"  danger onClick={() => setData([])} disabled={data.length === 0}>
-        Vider le tableau
-      </Button>
-      <Button className="m-3" onClick={() => setModalOpen(true)}>
-        Génerer un message
-      </Button>
-      <Modal
-        title="Génerer un message"
-        open={modalOpen}
-        onCancel={() => setModalOpen(false)}
-        footer={[
-          <Button key="submit" type="default" onClick={() =>{
-            message.success("Message généré avec succès");
-            setModalOpen(false);
-          }}>
-            Valider
-          </Button>
-        ]}
-      >
-        <TextArea 
-        rows={4} 
-        value={smsMessage} 
-        onChange={(e) => 
-        setSmsMessage(e.target.value)} 
-        />
-      </Modal>
-      {loading && <Spin size="large" fullscreen={true} />}
+    </Modal>
+    {loading && <Spin size="large" fullscreen={true} />}
     </>
   );
+     
 }
   
