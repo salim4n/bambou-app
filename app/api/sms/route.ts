@@ -2,18 +2,15 @@ import twilio from "twilio";
 import {NextResponse} from "next/server";
 
 
-const accountSid = 'AC9f542013a6c231da6ae9c8dc90b30ed8';
-const authToken = '2a86ebcee1b5c7c84e1dbe026f4092ef';
+const accountSid = 'AC82b58b8cb865c42dbbb4a4ff70d47dce';
+const authToken = '14e5400f996ff2bcefa9eeb6fa2ce2a6';
 export async function POST(req:any) {
   try {
     const client = require("twilio")(accountSid, authToken);
-    console.log(req);
     const {message,tel} = await req.json();
-    console.log("message",message)
-    console.log("tel",tel)
     const response = await client.messages.create({
       body: message,
-      from: '+12408216255',
+      from: '+12138163392',
       to: tel
     });
     return  NextResponse.json({message: response}, {status: 200});

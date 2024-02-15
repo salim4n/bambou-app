@@ -26,7 +26,7 @@ export default  function Home() {
     },
     onChange(info) {
       if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
+        message.loading('chargement en cours',1);
       }
       if (info.file.status === 'done') {
         message.success(`${info.file.name} file uploaded successfully`).then(async () => {
@@ -62,7 +62,6 @@ export default  function Home() {
             return row;
           });
           const filteredData = updatedRawData.filter((row: any) => !!row);
-          console.log("Filtered Data:", filteredData);
           resolve(filteredData);
           setLoading(false); 
         };
@@ -94,11 +93,9 @@ export default  function Home() {
     };
 
     const sendSms = async (column:string,smsMessage:string) => {
-      console.log("sendSms");
-      console.log(column);
+
           try {
             const selectedData = data.map((item: { [x: string]: any; }) => item[column]);
-            console.log(selectedData);
             setLoading(true);
             selectedData.forEach(async (phoneNumber: string) => {
               //verifier que le numero commence par 06 ou 07 ou +336 ou +337
@@ -116,7 +113,6 @@ export default  function Home() {
                     tel: phoneNumber.match(/^(06|07)/) ? `+33${phoneNumber.slice(1)}` : phoneNumber,
                   }),
                 });
-                console.log("Response:", response);
                 if (response.ok) {
                   message.success("SMS envoyé avec succès");
                 } else {
