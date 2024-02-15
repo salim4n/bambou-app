@@ -1,7 +1,7 @@
 "use client";
 import { Button, Spin, Table,message, Upload, Select,Modal, Input } from "antd";
 import { ColumnGroupType, ColumnType } from "antd/es/table";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import type {  UploadProps } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
@@ -9,7 +9,7 @@ import TextArea from "antd/es/input/TextArea";
 
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
-const authMessage = "e96e9da5-6a18-43ee-8421-f0545f177727";
+const authMessage = "bambou";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -19,6 +19,36 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [storedPassword, setStoredPassword] = useState<string>("");
   const [canEnter, setCanEnter] = useState<boolean>(false);
+
+
+  const storePassword = (password:string) => {
+    localStorage.setItem("password",password);
+    if(password === authMessage){
+      message.success("Mot de passe enregistré avec succès");
+      setCanEnter(true);
+    } else{
+      message.error("Mot de passe incorrect");
+    }
+  }
+
+
+  if(!canEnter){
+    
+   return ( 
+            <div className="text-center m-3 p-3">
+              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                Entrez le mot de passe
+              </label>
+              <Input className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+              type="password"
+              value={storedPassword}
+              onChange={(e) => setStoredPassword(e.target.value)}
+              />
+              <Button onClick={() => storePassword(storedPassword)}>
+                Valider
+              </Button>
+              </div>)
+  }
 
   const props: UploadProps = {
     name: 'file',
@@ -130,38 +160,6 @@ export default function Home() {
             setLoading(false);
           };
     }
-
-    const storePasswordInLocalStorage = (password:string) => {
-      localStorage.setItem("password",password);
-      if(password === authMessage){
-        message.success("Mot de passe enregistré avec succès");
-        setCanEnter(true);
-      } else{
-        message.error("Mot de passe incorrect");
-      }
-    }
-
-    if(!canEnter){
-      if(localStorage && localStorage.getItem("password") === authMessage){
-        setCanEnter(true);
-      }
-     return ( 
-              <div className="text-center m-3 p-3">
-                <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                  Entrez le mot de passe
-                </label>
-                <Input className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                type="password"
-                value={storedPassword}
-                onChange={(e) => setStoredPassword(e.target.value)}
-                />
-                <Button onClick={() => storePasswordInLocalStorage(storedPassword)}>
-                  Valider
-                </Button>
-                </div>)
-    }
-
-
 
   return  ( 
      <>
