@@ -2,8 +2,8 @@ import twilio from "twilio";
 import {NextResponse} from "next/server";
 
 
-const accountSid = 'AC82b58b8cb865c42dbbb4a4ff70d47dce';
-const authToken = '14e5400f996ff2bcefa9eeb6fa2ce2a6';
+const accountSid = '_______________';
+const authToken = '________________';
 export async function POST(req:any) {
   try {
     const client = require("twilio")(accountSid, authToken);

@@ -117,6 +117,7 @@ export default function Home() {
               title: header,
               dataIndex: header,
               key: header,
+              width: 200,
             });
           }
         });
@@ -186,7 +187,7 @@ export default function Home() {
       columns={generateColumns(data)}
       dataSource={data}
       size="small"
-      scroll={{ x: 1327,y:300}} 
+      scroll={{ x: 1327,y:800}} 
     />
     <Button className="m-3"  danger onClick={() => setData([])} disabled={data.length === 0}>
       Vider le tableau
