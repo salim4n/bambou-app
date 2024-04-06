@@ -7,8 +7,8 @@ import Link from "next/link";
 import { ArchiveIcon, HomeIcon } from "@radix-ui/react-icons";
 
 export const metadata: Metadata = {
-  title: "Bambou App",
-  description: "Envoi de sms massif via fichier Excel",
+  title: "Data Playground",
+  description: "Play with data",
   creator: "salim4n",
 };
 
@@ -59,7 +59,7 @@ export default function RootLayout({
           {children}
         </main>
         <footer className="fixed bottom-0 w-full z-50 bg-slate-600">
-          <p className="text-center m-3 p-3 text-white">&copy;{date.getFullYear()} - Salim4n App Data/Dashboard</p>
+          <p className="text-center m-3 p-3 text-white">&copy;{date.getFullYear()} - Salim4n -  Data Playground</p>
         </footer>
       </body>
     </html>

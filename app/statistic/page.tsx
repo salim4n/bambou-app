@@ -1,34 +1,68 @@
 "use client"
 
-import { generateInputSwitchType } from "@/lib/formGenerator";
-import { FontBoldIcon, UpdateIcon } from "@radix-ui/react-icons";
-import { Button, Card, Descriptions, Row, message } from "antd";
-import React, { useState } from "react";
+import FormGenerator from "@/app/components/Form/formGenerator";
+import { createEmptyData } from "@/lib/helper";
+import { Button, Descriptions, Flex, message } from "antd";
+import React, { useEffect, useState } from "react";
+import NewRecordForm from "../components/Form/newRecordForm";
 
  const FormPage = () => {
 
     const [data, setData] = useState<any>([]);
+    const [newData, setNewData] = useState<any>({}); 
+    const [isCreateMode, setIsCreateMode] = useState(false);
 
-    React.useEffect(() => {
+
+    useEffect(() => {
         const parsedMetadata = JSON.parse(sessionStorage.getItem("record") || "[]");
         setData(parsedMetadata);
+        const dataKeys = JSON.parse(sessionStorage.getItem("dataKeys") || "[]");
+        setNewData(dataKeys);
 
-        return () => {
-            setData([]);
-        };
     }, []);
+
     return (
         <div>
-
-            <Descriptions size="small" bordered extra={<Button type="default" onClick={()=> message.success("done!")} children="Sauvegarder" />} >
-            {Object.keys(data).map((key: string, index: number) => (
-                   <Descriptions.Item key={index} label={key} labelStyle={{fontWeight: 'bold',color: 'black'}} span={1}>
-                       {generateInputSwitchType(data[key])}
+            <Descriptions size="small" bordered extra={
+            <Flex gap="small">
+            <Button
+                    type="default"
+                    onClick={() => message.success("done!")}
+                    children="Save Data"
+                    disabled={data.length === 0} 
+            />
+            <Button
+                    type="primary"
+                    danger
+                    onClick={() => {
+                        sessionStorage.removeItem("record");
+                        setData([])
+                    }}
+                    children="Remove Data"
+                    disabled={data.length === 0} 
+            />
+            <Button
+                    type="default"
+                    ghost
+                    onClick={() => setIsCreateMode(true)}
+                    children="Create New Record"
+                    disabled={data.length !== 0} 
+            />
+            </Flex>
+            } >
+                {!isCreateMode && Object.keys(data).map((key: string, index: number) => (
+                    <Descriptions.Item key={index} label={key} labelStyle={{fontWeight: 'bold',color: 'black'}} span={1}>
+                    <FormGenerator data={data[key]} />
                     </Descriptions.Item>
                 ))}
-            </Descriptions>
+                {isCreateMode && (
+                    <Descriptions.Item label="New Record" labelStyle={{fontWeight: 'bold',color: 'black'}} span={1}>
+                         <NewRecordForm dataKeys={newData} />
+                    </Descriptions.Item>
+                )}
+                </Descriptions>
         </div>
-    );
+    ); 
 };
 
 export default FormPage;

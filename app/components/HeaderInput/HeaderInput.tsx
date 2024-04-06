@@ -3,8 +3,8 @@
 
 import { Button, Spin, Upload, UploadProps, message } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
-import { readExcelFile } from "@/lib/helper";
-import { useState } from "react";
+import { createEmptyData, getDataKeys, readExcelFile } from "@/lib/helper";
+import { useState } from "react"; 
 
 export const HeaderInput = () => {
 
@@ -27,6 +27,7 @@ export const HeaderInput = () => {
                 const parsedMetadata: any = await readExcelFile(info.file.originFileObj as File);
                 console.table(parsedMetadata);
                 sessionStorage.setItem("data", JSON.stringify(parsedMetadata));
+                sessionStorage.setItem("dataKeys", JSON.stringify(getDataKeys(parsedMetadata[0])));
               } catch (e) {
                 console.error("Erreur lors de la lecture du fichier", e);
                 message.error("Erreur lors de la lecture du fichier");

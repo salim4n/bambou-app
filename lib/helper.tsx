@@ -6,7 +6,7 @@ export const readExcelFile = (file: File) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const binaryStr = e.target?.result as string;
-        const wb = XLSX.read(binaryStr, { type: "binary" });
+        const wb = XLSX.read(binaryStr,  { type: "binary", cellDates: true });
         const sheetNames = wb.SheetNames;
         const sheet = wb.Sheets[sheetNames[0]];
         const rawData = XLSX.utils.sheet_to_json(sheet);
@@ -22,6 +22,20 @@ export const readExcelFile = (file: File) => {
       };
       reader.readAsBinaryString(file);
     })
+  };
+
+
+  export const getDataKeys = (data: Record<string, any>) => {
+    return Object.keys(data);
+  };
+
+
+  export const createEmptyData = (data: Record<string, any>) => {
+    const emptyData: Record<string, any> = {};
+    Object.keys(data).forEach(key => {
+      emptyData[key] = '';
+    });
+    return emptyData;
   };
 
   
