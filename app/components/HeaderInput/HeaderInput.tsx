@@ -1,10 +1,11 @@
-
 "use client";
+
 
 import { Button, Spin, Upload, UploadProps, message } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
-import { createEmptyData, getDataKeys, readExcelFile } from "@/lib/helper";
+import {  getDataKeys, readExcelFile } from "@/lib/helper";
 import { useState } from "react"; 
+const { v4: uuidv4 } = require('uuid');
 
 export const HeaderInput = () => {
 
@@ -26,6 +27,10 @@ export const HeaderInput = () => {
                 setLoading(true);
                 const parsedMetadata: any = await readExcelFile(info.file.originFileObj as File);
                 console.table(parsedMetadata);
+                //ici ajout uuid avec la bibliotheque uuid
+                parsedMetadata.forEach((record: any) => {
+                  record.uuid = uuidv4();
+                });
                 sessionStorage.setItem("data", JSON.stringify(parsedMetadata));
                 sessionStorage.setItem("dataKeys", JSON.stringify(getDataKeys(parsedMetadata[0])));
               } catch (e) {
@@ -51,3 +56,4 @@ export const HeaderInput = () => {
 
     )
 }
+

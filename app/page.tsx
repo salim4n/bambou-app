@@ -79,26 +79,28 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
           ),
         };
         headers.forEach((header) => {
-          columns.push({
-          title: header,
-          dataIndex: header,
-          key: header,
-          width: 200,
-          render: (text: any, record: any) => {
-            let value = record[header];
-            if (typeof value === 'string') {
-              if (value.includes('\r\n')) {
-                value = value.split('\r\n');
-              } else if (value.includes(',')) {
-                value = value.split(',');
+          if (header !== 'uuid') {
+            columns.push({
+              title: header,
+              dataIndex: header,
+              key: header,
+              width: 200,
+              render: (text: any, record: any) => {
+                let value = record[header];
+                if (typeof value === 'string') {
+                  if (value.includes('\r\n')) {
+                    value = value.split('\r\n');
+                  } else if (value.includes(',')) {
+                    value = value.split(',');
+                  }
+                }
+                if (Array.isArray(value)) {
+                  return value.map((item: string) => <Tag>{item}</Tag>);
+                }
+                return value;
               }
-            }
-            if (Array.isArray(value)) {
-              return value.map((item: string) => <Tag>{item}</Tag>);
-            }
-            return value;
+            });
           }
-          });
         });
         //ts-ignore
         columns.push(action as any);
@@ -204,6 +206,7 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
       }>
       <Descriptions bordered={isBordered}>
         {recordData && Object.keys(recordData).map(key => (
+          key !== 'uuid' &&
           <Descriptions.Item label={key} key={key}>{recordData[key]}</Descriptions.Item>
         ))}
       </Descriptions>

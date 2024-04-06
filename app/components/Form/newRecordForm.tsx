@@ -1,15 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input, Select, Switch, InputNumber, DatePicker, Flex, Button, message } from 'antd';
 import dayjs from 'dayjs';
 import { PlusIcon } from '@radix-ui/react-icons';
+const { v4: uuidv4 } = require('uuid');
 
 interface Props {
   dataKeys: string[];
+  initialValues?: Record<string, any>;
 }
 
-const NewRecordForm: React.FC<Props> = ({ dataKeys }) => {
-  const [values, setValues] = useState<Record<string, any>>({});
+enum Mode {
+  Create,
+  Update
+}
+
+const NewRecordForm: React.FC<Props> = ({ dataKeys, initialValues = {} }) => {
+  const [values, setValues] = useState({ ...initialValues });
   const [dataTypes, setDataTypes] = useState<Record<string, string>>({});
+  const [mode, setMode] = useState(Mode.Create);
+
+  
+  useEffect(() => {
+    if (Object.keys(initialValues).length  === 0 ){
+      setMode(Mode.Create);
+    } else {
+      setMode(Mode.Update);
+    }
+  }, []);
+
+  useEffect(() => {
+    setValues({ ...initialValues });
+  }, [initialValues]);
 
   const handleTypeChange = (key: string, value: string) => {
     setDataTypes(prev => ({ ...prev, [key]: value }));
@@ -19,6 +40,30 @@ const NewRecordForm: React.FC<Props> = ({ dataKeys }) => {
     setValues(prev => ({ ...prev, [key]: value }));
   };
 
+  const createRecord = () => {
+    const uuid = uuidv4();
+    const valuesWithUuid = { ...values, uuid };
+    message.success(JSON.stringify(valuesWithUuid));
+    const data = JSON.parse(sessionStorage.getItem("data") || "[]");
+    data.push(valuesWithUuid);
+    sessionStorage.setItem("data", JSON.stringify(data));
+    message.success("Record created successfully");
+    setMode(Mode.Create);
+  };
+
+  const updateRecord = () => {
+    const data = JSON.parse(sessionStorage.getItem("data") || "[]");
+    const index = data.findIndex((record: { uuid: any; }) => record.uuid === initialValues.uuid);
+    if (index !== -1) {
+      data[index] = values;
+      sessionStorage.setItem("data", JSON.stringify(data));
+      message.success("Record updated successfully");
+    } else {
+      message.error("Record not found");
+    }
+    setMode(Mode.Create);
+  };
+  
   const renderInputField = (key: string) => {
     const dataType = dataTypes[key];
     const value = values[key];
@@ -43,17 +88,10 @@ const NewRecordForm: React.FC<Props> = ({ dataKeys }) => {
     }
   };
 
-  function handleCreate() {
-   message.success(JSON.stringify(values));
-   const data = JSON.parse(sessionStorage.getItem("data") || "[]");
-    data.push(values);
-    sessionStorage.setItem("data", JSON.stringify(data));
-    message.success("Record created successfully");
-  }
-
   return (
     <Flex vertical gap='small' style={{ width: '100%' }}>
       {Array.isArray(dataKeys) && dataKeys.map((key) => (
+         key !== 'uuid' && (
         <div key={key} style={{ marginBottom: '20px' }}>
           <label style={{ fontWeight: 'bold', color: 'black', display: 'block', marginBottom: '10px' }}>{key}</label>
           <Select style={{ width: '100%', marginBottom: '10px' }} onChange={value => handleTypeChange(key, value)} placeholder="Select data type">
@@ -67,14 +105,28 @@ const NewRecordForm: React.FC<Props> = ({ dataKeys }) => {
             {renderInputField(key)}
           </div>
         </div>
+         )
       ))}
-      <Button 
-        className="mr-2 bg-green-400 text-white hover:bg-green-500"
-        onClick={() => handleCreate()}
-        icon={<PlusIcon />}
-        >Create</Button>
+      {mode ?(
+        <Button 
+          className="mr-2 bg-orange-400 text-white hover:bg-orange-500"
+          onClick={updateRecord}
+          icon={<PlusIcon />}
+        >
+          Update
+        </Button>
+      ) : (
+        <Button 
+          className="mr-2 bg-green-400 text-white hover:bg-green-500"
+          onClick={createRecord}
+          icon={<PlusIcon />}
+        >
+          Create
+        </Button>
+      )}
     </Flex>
   );
 };
+
 
 export default NewRecordForm;
