@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import {  Flex, Menu, MenuProps,} from "antd";
+import { generateMenuItem } from "@/lib/menuItem";
+import { HeaderInput } from "./components/HeaderInput/HeaderInput";
+import Link from "next/link";
+import { ArchiveIcon, HomeIcon } from "@radix-ui/react-icons";
 
 export const metadata: Metadata = {
   title: "Bambou App",
@@ -14,6 +19,26 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const menu = [
+    {
+      label: 'Accueil',
+      key: 'Accueil',
+      icon: <Link href={"/"}><HomeIcon /></Link>,
+    },
+    {
+      label: 'Statistiques',
+      key: 'statistiques',
+      icon: <Link href={"/statistic"}><ArchiveIcon /></Link>,
+    },
+    {
+      label: <HeaderInput />,
+      key: 'HeaderInput',
+      style: {float: 'right'}
+    }
+    
+  ] as MenuProps['items'] ;
+
   return (
     <html lang="fr">
       <head>
@@ -28,13 +53,13 @@ export default function RootLayout({
       </head>
       <body className="bg-slate-400">
         <header className="fixed top-0 w-full z-50 bg-slate-600">
-          <h1 className="text-center m-3 p-3 text-white">Bambou App</h1>
+          <Menu  mode="horizontal" theme="dark" items={menu}  />
         </header>
         <main className="container mx-auto mt-20 mb-20 px-4">
           {children}
         </main>
         <footer className="fixed bottom-0 w-full z-50 bg-slate-600">
-          <p className="text-center m-3 p-3 text-white">&copy;{date.getFullYear()} - Bambou Application SMS automation</p>
+          <p className="text-center m-3 p-3 text-white">&copy;{date.getFullYear()} - Salim4n App Data/Dashboard</p>
         </footer>
       </body>
     </html>

@@ -1,0 +1,4 @@
+
+TODO :
+
+- Permettre à l'utilisateur de choisir le type de data dans les input formulaires

@@ -1,126 +1,94 @@
 "use client";
-import { Button, Spin, Table,message, Upload, Select,Modal, Input } from "antd";
+
+import { Button, Spin, Table,message, Select,Modal, Descriptions } from "antd";
 import { ColumnGroupType, ColumnType } from "antd/es/table";
 import {  useEffect, useState } from "react";
-import * as XLSX from "xlsx";
-import type {  UploadProps } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
 import TextArea from "antd/es/input/TextArea";
+import { EyeOpenIcon, Pencil1Icon } from "@radix-ui/react-icons";
+import { useRouter } from 'next/navigation'
 
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
-const authMessage = "bambou";
-
-export default function Home() {
+  const Home =() => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<any>([]);
   const [selectedColumn, setSelectedColumn] = useState<string>("");
   const [smsMessage, setSmsMessage] = useState<string>("hello world!");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [storedPassword, setStoredPassword] = useState<string>("");
-  const [canEnter, setCanEnter] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [recordData, setRecordData] = useState(null);
+  const [isBordered, setIsBordered] = useState(false);
+  const router = useRouter()
 
+  useEffect(() => {
+    const parsedMetadata = JSON.parse(sessionStorage.getItem("data") || "[]");
+    setData(parsedMetadata);
+  }, []);
 
-  const storePassword = (password:string) => {
-    localStorage.setItem("password",password);
-    if(password === authMessage){
-      message.success("Mot de passe enregistré avec succès");
-      setCanEnter(true);
-    } else{
-      message.error("Mot de passe incorrect");
-    }
-  }
-
-
-  if(!canEnter){
-    
-   return ( 
-            <div className="text-center m-3 p-3">
-              <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                Entrez le mot de passe
-              </label>
-              <Input className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-              type="password"
-              value={storedPassword}
-              onChange={(e) => setStoredPassword(e.target.value)}
-              />
-              <Button onClick={() => storePassword(storedPassword)}>
-                Valider
-              </Button>
-              </div>)
-  }
-
-  const props: UploadProps = {
-    name: 'file',
-    action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
-    headers: {
-      authorization: 'authorization-text',
-    },
-    onChange(info) {
-      if (info.file.status !== 'uploading') {
-        message.loading('chargement en cours',1);
-      }
-      if (info.file.status === 'done') {
-        message.success(`${info.file.name} file uploaded successfully`).then(async () => {
-          try {
-            setLoading(true);
-            const parsedMetadata: any = await readExcelFile(info.file.originFileObj as File);
-            console.table(parsedMetadata);
-            setData(parsedMetadata);
-          } catch (e) {
-            console.error("Erreur lors de la lecture du fichier", e);
-            message.error("Erreur lors de la lecture du fichier");
-          } finally {
-            setLoading(false);
-          }
-        });
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
+  const showModal = (record: any) => {
+    setIsModalVisible(true);
+    setRecordData(record);
   };
 
-    const readExcelFile = (file: File) => {
-      setLoading(true);
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const binaryStr = e.target?.result as string;
-          const wb = XLSX.read(binaryStr, { type: "binary" });
-          const sheetNames = wb.SheetNames;
-          const sheet = wb.Sheets[sheetNames[0]];
-          const rawData = XLSX.utils.sheet_to_json(sheet);
-          const updatedRawData = rawData.map((row: any) => {
-            return row;
-          });
-          const filteredData = updatedRawData.filter((row: any) => !!row);
-          resolve(filteredData);
-          setLoading(false); 
-        };
-        reader.onerror = (error) => {
-          console.error("Error reading Excel file:", error);
-          setLoading(false); 
-          reject(error); 
-        };
-        reader.readAsBinaryString(file);
-      })
-    };
-    
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
+
     const generateColumns = (data:any): CustomColumnType<any>[] => {
       const columns: CustomColumnType<any>[]= [];
       if (data && data.length > 0 && data[0]) {
-        const headers = Object.keys(data[0]);
-        headers.forEach((header) => {
-          const columnData = data.map((item: { [x: string]: any; }) => item[header]);
-          if (columnData.every((value: undefined) => value !== undefined)) {
-            columns.push({
-              title: header,
-              dataIndex: header,
-              key: header,
-              width: 200,
-            });
+        let maxKeysObj = data[0];
+        let maxKeys = Object.keys(data[0]).length;
+      
+        data.forEach((obj: {}) => {
+          const numKeys = Object.keys(obj).length;
+          if (numKeys > maxKeys) {
+          maxKeys = numKeys;
+          maxKeysObj = obj;
           }
         });
+      
+        const headers = Object.keys(maxKeysObj);
+        const action = {
+          title: "Action",
+          key: "action",
+          fixed: "right",
+          width: 100,
+          render: (record: any) => (
+            <>
+            <Button 
+              type="primary"
+              shape="circle"
+              onClick={() => showModal(record)}
+              icon={<EyeOpenIcon />}
+              className="mr-2 bg-blue-400 text-white hover:bg-blue-500"
+            />
+            <Button 
+              type="text"
+              className="mr-2 bg-orange-400 text-white hover:bg-orange-500"
+              shape="circle"
+              onClick={() => {
+                sessionStorage.setItem("record", JSON.stringify(record));
+                router.push("/statistic")
+              } }
+              icon={<Pencil1Icon />}
+            />
+            </>
+          ),
+        };
+        headers.forEach((header) => {
+          columns.push({
+          title: header,
+          dataIndex: header,
+          key: header,
+          width: 200,
+          });
+        });
+        //ts-ignore
+        columns.push(action as any);
+  
       }
       return columns;
     };
@@ -164,11 +132,6 @@ export default function Home() {
 
   return  ( 
      <>
-     <div className="text-center m-3 p-3">
-    <Upload {...props}>
-      <Button icon={<UploadOutlined />}>Telecharger Fichier Excel</Button>
-    </Upload>
-    </div>
     {data.length > 0 && (
       <div className="text-center m-3 p-3">
         <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn,smsMessage)} disabled={selectedColumn === ""}>
@@ -189,12 +152,11 @@ export default function Home() {
       size="small"
       scroll={{ x: 1327,y:800}} 
     />
-    <Button className="m-3"  danger onClick={() => setData([])} disabled={data.length === 0}>
-      Vider le tableau
-    </Button>
+
     <Button className="m-3" onClick={() => setModalOpen(true)}>
       Génerer un message
     </Button>
+
     <Modal
       title="Génerer un message"
       open={modalOpen}
@@ -215,9 +177,27 @@ export default function Home() {
       setSmsMessage(e.target.value)} 
       />
     </Modal>
+    <Modal 
+     open={isModalVisible}
+     onCancel={handleCancel}
+     width={2000} 
+     footer={
+      [
+        <Button  type="primary" danger={isBordered?true:false} ghost onClick={()=>setIsBordered(!isBordered)}>
+          Bordure ?
+        </Button>
+      ]
+      }>
+      <Descriptions bordered={isBordered}>
+        {recordData && Object.keys(recordData).map(key => (
+          <Descriptions.Item label={key} key={key}>{recordData[key]}</Descriptions.Item>
+        ))}
+      </Descriptions>
+    </Modal>
     {loading && <Spin size="large" fullscreen={true} />}
     </>
   );
-     
 }
+
+export default Home;
   
