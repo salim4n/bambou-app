@@ -4,7 +4,7 @@ import { Button, Spin, Table,message, Select,Modal, Descriptions, Tag } from "an
 import { ColumnGroupType, ColumnType } from "antd/es/table";
 import {  useEffect, useState } from "react";
 import TextArea from "antd/es/input/TextArea";
-import { EyeOpenIcon, Pencil1Icon } from "@radix-ui/react-icons";
+import { EyeOpenIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from 'next/navigation'
 
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
@@ -35,6 +35,19 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
     setIsModalVisible(false);
   };
 
+  const deleteRecord = (uuid: string) => {
+    const data = JSON.parse(sessionStorage.getItem("data") || "[]");
+    const updatedData = data.filter((record: any) => record.uuid !== uuid);
+    sessionStorage.setItem("data", JSON.stringify(updatedData));
+    setData(updatedData);
+  };
+
+  const clearData = () => {
+    sessionStorage.removeItem("data");
+    setData([]);
+    message.success("Data cleared successfully");
+  };
+  
 
     const generateColumns = (data:any): CustomColumnType<any>[] => {
       const columns: CustomColumnType<any>[]= [];
@@ -55,11 +68,11 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
           title: "Action",
           key: "action",
           fixed: "right",
-          width: 100,
+          width: 140,
           render: (record: any) => (
             <>
             <Button 
-              type="primary"
+              type="text"
               shape="circle"
               onClick={() => showModal(record)}
               icon={<EyeOpenIcon />}
@@ -74,6 +87,13 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
                 router.push("/statistic")
               } }
               icon={<Pencil1Icon />}
+            />
+             <Button 
+              type="text"
+              className="mr-2 bg-red-400 text-white hover:bg-red-500"
+              shape="circle"
+              onClick={() => deleteRecord(record.uuid) }
+              icon={<TrashIcon />}
             />
             </>
           ),
@@ -171,6 +191,10 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
     <Button className="m-3" onClick={() => setModalOpen(true)}>
       Génerer un message
+    </Button>
+
+    <Button className="m-3" danger onClick={() => clearData()}>
+      Clear Data
     </Button>
 
     <Modal

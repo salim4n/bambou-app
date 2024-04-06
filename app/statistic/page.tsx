@@ -30,15 +30,9 @@ import NewRecordForm from "../components/Form/newRecordForm";
               children="Remove Data"
               disabled={Object.keys(currentRecord).length === 0} 
             />
-            <Button
-              type="default"
-              ghost
-              onClick={() => setCurrentRecord({})}
-              children="Create New Record"
-            />
           </Flex>
         } >
-          <Descriptions.Item label="New Record" labelStyle={{fontWeight: 'bold',color: 'black'}} span={1}>
+          <Descriptions.Item  labelStyle={{fontWeight: 'bold',color: 'black'}} span={1}>
           <NewRecordForm dataKeys={dataKeys} initialValues={currentRecord} />
           </Descriptions.Item>
         </Descriptions>

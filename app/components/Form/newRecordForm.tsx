@@ -21,12 +21,12 @@ const NewRecordForm: React.FC<Props> = ({ dataKeys, initialValues = {} }) => {
 
   
   useEffect(() => {
-    if (Object.keys(initialValues).length  === 0 ){
-      setMode(Mode.Create);
-    } else {
+    if (initialValues && Object.keys(initialValues).length > 0) {
       setMode(Mode.Update);
+    } else {
+      setMode(Mode.Create);
     }
-  }, []);
+  }, [initialValues]);
 
   useEffect(() => {
     setValues({ ...initialValues });
@@ -43,7 +43,6 @@ const NewRecordForm: React.FC<Props> = ({ dataKeys, initialValues = {} }) => {
   const createRecord = () => {
     const uuid = uuidv4();
     const valuesWithUuid = { ...values, uuid };
-    message.success(JSON.stringify(valuesWithUuid));
     const data = JSON.parse(sessionStorage.getItem("data") || "[]");
     data.push(valuesWithUuid);
     sessionStorage.setItem("data", JSON.stringify(data));
@@ -107,7 +106,7 @@ const NewRecordForm: React.FC<Props> = ({ dataKeys, initialValues = {} }) => {
         </div>
          )
       ))}
-      {mode ?(
+      {mode === Mode.Update ?(
         <Button 
           className="mr-2 bg-orange-400 text-white hover:bg-orange-500"
           onClick={updateRecord}
