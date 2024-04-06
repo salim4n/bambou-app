@@ -27,16 +27,33 @@ export default function RootLayout({
       icon: <Link href={"/"}><HomeIcon /></Link>,
     },
     {
-      label: 'Statistiques',
-      key: 'statistiques',
-      icon: <Link href={"/statistic"}><ArchiveIcon /></Link>,
+      label: 'Form',
+      key: 'Form',
+      icon: <Link href={"/form"}><ArchiveIcon /></Link>,
     },
     {
-      label: <HeaderInput />,
-      key: 'HeaderInput',
-      style: {float: 'right'}
-    }
-    
+      label: 'Data',
+      key: 'SubMenu',
+      children: [
+        {
+          type: 'group',
+          label: 'File Upload',
+          children: [
+            {
+              label: <HeaderInput buttonText="Upload Excel " type="excel" />,
+              key: 'Excel',
+              style: {float: 'right'}
+            },
+            {
+              label: <HeaderInput buttonText="Upload CSV" type="csv" />,
+              key: 'CSV',
+              style: {float: 'right'}
+            },
+          ],
+        }
+      ],
+    },
+
   ] as MenuProps['items'] ;
 
   return (

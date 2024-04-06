@@ -30,7 +30,6 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
     setRecordData(record);
   };
 
-
   const handleCancel = () => {
     setIsModalVisible(false);
   };
@@ -44,12 +43,13 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
   const clearData = () => {
     sessionStorage.removeItem("data");
+    sessionStorage.removeItem("dataKeys");
     setData([]);
     message.success("Data cleared successfully");
   };
   
 
-    const generateColumns = (data:any): CustomColumnType<any>[] => {
+  const generateColumns = (data:any): CustomColumnType<any>[] => {
       const columns: CustomColumnType<any>[]= [];
       if (data && data.length > 0 && data[0]) {
         let maxKeysObj = data[0];
@@ -84,7 +84,7 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
               shape="circle"
               onClick={() => {
                 sessionStorage.setItem("record", JSON.stringify(record));
-                router.push("/statistic")
+                router.push("/form")
               } }
               icon={<Pencil1Icon />}
             />
@@ -122,9 +122,7 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
             });
           }
         });
-        //ts-ignore
         columns.push(action as any);
-  
       }
       return columns;
     };

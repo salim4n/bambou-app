@@ -1,5 +1,7 @@
 
+import Papa from "papaparse";
 import * as XLSX from "xlsx";
+import {loadJsonFile} from 'load-json-file';
 
 export const readExcelFile = (file: File) => {
     return new Promise((resolve, reject) => {
@@ -24,6 +26,22 @@ export const readExcelFile = (file: File) => {
     })
   };
 
+  export const readCsvFile = (file: File) => {
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        complete: function(results) {
+          resolve(results.data);
+        },
+        header: true,
+        error: function(err) {
+          reject(err);
+        }
+      });
+    });
+  };
+
+
+
 
   export const getDataKeys = (data: Record<string, any>) => {
     return Object.keys(data);
@@ -37,5 +55,3 @@ export const readExcelFile = (file: File) => {
     });
     return emptyData;
   };
-
-  

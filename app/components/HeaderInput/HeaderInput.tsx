@@ -1,13 +1,19 @@
 "use client";
 
-
 import { Button, Spin, Upload, UploadProps, message } from "antd"
 import { UploadOutlined } from '@ant-design/icons';
-import {  getDataKeys, readExcelFile } from "@/lib/helper";
+import {  getDataKeys,  readCsvFile,  readExcelFile } from "@/lib/helper";
 import { useState } from "react"; 
+import React from "react";
+
 const { v4: uuidv4 } = require('uuid');
 
-export const HeaderInput = () => {
+interface IProps {
+  buttonText: string;
+  type: "excel" | "csv";
+}
+
+export const HeaderInput : React.FC<IProps> = ({buttonText,type}) => {
 
     const [loading, setLoading] = useState(false);
 
@@ -25,17 +31,21 @@ export const HeaderInput = () => {
             message.success(`${info.file.name} file uploaded successfully`).then(async () => {
               try {
                 setLoading(true);
-                const parsedMetadata: any = await readExcelFile(info.file.originFileObj as File);
+                let parsedMetadata: any;
+                if (type === "excel") {
+                  parsedMetadata = await readExcelFile(info.file.originFileObj as File);
+                } else {
+                  parsedMetadata = await readCsvFile(info.file.originFileObj as File);
+                }
                 console.table(parsedMetadata);
-                //ici ajout uuid avec la bibliotheque uuid
                 parsedMetadata.forEach((record: any) => {
                   record.uuid = uuidv4();
                 });
                 sessionStorage.setItem("data", JSON.stringify(parsedMetadata));
                 sessionStorage.setItem("dataKeys", JSON.stringify(getDataKeys(parsedMetadata[0])));
               } catch (e) {
-                console.error("Erreur lors de la lecture du fichier", e);
                 message.error("Erreur lors de la lecture du fichier");
+                message.error((e as Error).message);
               } finally {
                 setLoading(false);
               }
@@ -49,7 +59,7 @@ export const HeaderInput = () => {
     return (
         <>
         <Upload {...props}>
-          <Button ghost icon={<UploadOutlined />}>Telecharger Fichier Excel</Button>
+          <Button ghost icon={<UploadOutlined />} children={buttonText} />
         </Upload>
         {loading && <Spin size="large" fullscreen={true} />}
         </>
