@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import {  Flex, Menu, MenuProps,} from "antd";
+import {Menu} from "antd";
 import { generateMenuItem } from "@/lib/menuItem";
-import { HeaderInput } from "./components/HeaderInput/HeaderInput";
-import Link from "next/link";
-import { ArchiveIcon, HomeIcon } from "@radix-ui/react-icons";
 
 export const metadata: Metadata = {
   title: "Data Playground",
@@ -20,41 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const menu = [
-    {
-      label: 'Accueil',
-      key: 'Accueil',
-      icon: <Link href={"/"}><HomeIcon /></Link>,
-    },
-    {
-      label: 'Form',
-      key: 'Form',
-      icon: <Link href={"/form"}><ArchiveIcon /></Link>,
-    },
-    {
-      label: 'Data',
-      key: 'SubMenu',
-      children: [
-        {
-          type: 'group',
-          label: 'File Upload',
-          children: [
-            {
-              label: <HeaderInput buttonText="Upload Excel " type="excel" />,
-              key: 'Excel',
-              style: {float: 'right'}
-            },
-            {
-              label: <HeaderInput buttonText="Upload CSV" type="csv" />,
-              key: 'CSV',
-              style: {float: 'right'}
-            },
-          ],
-        }
-      ],
-    },
 
-  ] as MenuProps['items'] ;
 
   return (
     <html lang="fr">
@@ -70,7 +33,7 @@ export default function RootLayout({
       </head>
       <body className="bg-slate-400">
         <header className="fixed top-0 w-full z-50 bg-slate-600">
-          <Menu  mode="horizontal" theme="dark" items={menu}  />
+          <Menu  mode="horizontal" theme="dark" items={generateMenuItem()}  />
         </header>
         <main className="container mx-auto mt-20 mb-20 px-4">
           {children}

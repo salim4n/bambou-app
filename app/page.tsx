@@ -1,11 +1,12 @@
 "use client";
 
-import { Button, Spin, Table,message, Select,Modal, Descriptions, Tag } from "antd";
+import { Button, Spin, Table,message, Select,Modal, Descriptions, Tag, Input } from "antd";
 import { ColumnGroupType, ColumnType } from "antd/es/table";
 import {  useEffect, useState } from "react";
 import TextArea from "antd/es/input/TextArea";
 import { EyeOpenIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from 'next/navigation'
+import { filteredList } from "@/lib/helper";
 
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
@@ -18,6 +19,7 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [recordData, setRecordData] = useState(null);
   const [isBordered, setIsBordered] = useState(false);
+  const [searchText, setSearchText] = useState("");
   const router = useRouter()
 
   useEffect(() => {
@@ -127,6 +129,10 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
       return columns;
     };
 
+    const filterData = () => {
+        return filteredList(data, searchText);
+    }
+
     const sendSms = async (column:string,smsMessage:string) => {
 
           try {
@@ -167,22 +173,26 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
   return  ( 
      <>
     {data.length > 0 && (
-      <div className="text-center m-3 p-3">
-        <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn,smsMessage)} disabled={selectedColumn === ""}>
-          Envoyer SMS
-        </Button>
-        <Select
-          className="m-3"
-          placeholder="Sélectionnez une colonne"
-          options={Object.keys(data[0]).map((key) => ({ label: key, value: key }))}
-          onChange={(value) => setSelectedColumn(value)}
-          />
-      </div>
+      <><div className="text-center m-3 p-3">
+          <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn, smsMessage)} disabled={selectedColumn === ""}>
+            Envoyer SMS
+          </Button>
+          <Select
+            className="m-3"
+            placeholder="Sélectionnez une colonne"
+            options={Object.keys(data[0]).map((key) => ({ label: key, value: key }))}
+            onChange={(value) => setSelectedColumn(value)} />
+        </div>
+        <div className="text-center m-3 p-3">
+         <Input placeholder="search..." value={searchText} 
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-1/4"/>
+        </div></>
     )}
     <Table
       className="m-3 p-3 divide-indigo-950"
       columns={generateColumns(data)}
-      dataSource={data}
+      dataSource={filterData()}
       size="small"
       scroll={{ x: 1327,y:800}} 
     />
