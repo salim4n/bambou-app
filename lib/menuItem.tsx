@@ -1,6 +1,6 @@
 
 import { HeaderInput } from "@/app/components/HeaderInput/HeaderInput";
-import { HomeIcon, ArchiveIcon } from "@radix-ui/react-icons";
+import { HomeIcon, ArchiveIcon, RocketIcon } from "@radix-ui/react-icons";
 import { MenuProps } from "antd";
 import Link from "next/link";
 
@@ -38,6 +38,11 @@ export const generateMenuItem = () => {
           ],
         }
       ],
+    },
+    {
+      label: 'Model Machine Learning',
+      key: 'ml',
+      icon: <Link href={"/ml-model"}><RocketIcon /></Link>,
     },
 
   ] as MenuProps['items'] ;

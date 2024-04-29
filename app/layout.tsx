@@ -1,7 +1,7 @@
+
 import type { Metadata } from "next";
 import "./globals.css";
-import {Menu} from "antd";
-import { generateMenuItem } from "@/lib/menuItem";
+import Layout from "./layout/page";
 
 export const metadata: Metadata = {
   title: "Data Playground",
@@ -17,8 +17,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-
-
   return (
     <html lang="fr">
       <head>
@@ -32,15 +30,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-slate-400">
-        <header className="fixed top-0 w-full z-50 bg-slate-600">
-          <Menu  mode="horizontal" theme="dark" items={generateMenuItem()}  />
-        </header>
-        <main className="container mx-auto mt-20 mb-20 px-4">
+          <Layout>
           {children}
-        </main>
-        <footer className="fixed bottom-0 w-full z-50 bg-slate-600">
-          <p className="text-center m-3 p-3 text-white">&copy;{date.getFullYear()} - Salim4n -  Data Playground</p>
-        </footer>
+          </Layout>
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import TextArea from "antd/es/input/TextArea";
 import { EyeOpenIcon, Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import { useRouter } from 'next/navigation'
 import { filteredList } from "@/lib/helper";
+import { sendSmsFunc } from "@/lib/utils";
 
 type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
 
@@ -133,48 +134,15 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
         return filteredList(data, searchText);
     }
 
-    const sendSms = async (column:string,smsMessage:string) => {
-
-          try {
-            const selectedData = data.map((item: { [x: string]: any; }) => item[column]);
-            setLoading(true);
-            selectedData.forEach(async (phoneNumber: string) => {
-              //verifier que le numero commence par 06 ou 07 ou +336 ou +337
-              if (!phoneNumber.match(/^(06|07|\+336|\+337)/)) {
-                message.error("Le numéro de téléphone doit commencer par 06, 07, +336 ou +337");
-              }
-              if(phoneNumber.match(/^(06|07|\+336|\+337)/)){
-                const response = await fetch("/api/sms", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    message: smsMessage,
-                    tel: phoneNumber.match(/^(06|07)/) ? `+33${phoneNumber.slice(1)}` : phoneNumber,
-                  }),
-                });
-                if (response.ok) {
-                  message.success("SMS envoyé avec succès");
-                } else {
-                  message.error("Erreur lors de l'envoi du SMS");
-                }
-              }
-              
-            });
-          } catch (error) {
-            console.error("Erreur lors de l'envoi du SMS", error);
-            message.error("Erreur lors de l'envoi du SMS");
-          } finally {
-            setLoading(false);
-          };
+    const sendSms = async () => {
+       sendSmsFunc(selectedColumn, data, setLoading, message, smsMessage);
     }
 
   return  ( 
      <>
     {data.length > 0 && (
       <><div className="text-center m-3 p-3">
-          <Button className=" bg-blue-400 text-white" onClick={() => sendSms(selectedColumn, smsMessage)} disabled={selectedColumn === ""}>
+          <Button className=" bg-blue-400 text-white" onClick={() => sendSms()} disabled={selectedColumn === ""}>
             Envoyer SMS
           </Button>
           <Select
@@ -197,7 +165,7 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
       scroll={{ x: 1327,y:800}} 
     />
 
-    <Button className="m-3" onClick={() => setModalOpen(true)}>
+    <Button className="m-3" onClick={() => setModalOpen(true)} disabled>
       Génerer un message
     </Button>
 
@@ -210,7 +178,7 @@ type CustomColumnType<T> = ColumnType<T> | ColumnGroupType<T>;
       open={modalOpen}
       onCancel={() => setModalOpen(false)}
       footer={[
-        <Button key="submit" type="default" onClick={() =>{
+        <Button  key="submit" type="default" onClick={() =>{
           message.success("Message généré avec succès");
           setModalOpen(false);
         }}>
