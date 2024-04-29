@@ -2,12 +2,9 @@
 
 import { generateMenuItem } from "@/lib/menuItem";
 import { Menu } from "antd";
-import * as ui from "@tensorflow/tfjs-vis";
-
 
 export default function Layout({children}: Readonly<{children: React.ReactNode;}>){
     const date = new Date();
-    const visor = ui.visor();
 
     return (
         
